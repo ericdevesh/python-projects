@@ -4,23 +4,19 @@ A local, risk-controlled forex research and paper-trading foundation built with 
 
 ## Current scope
 
-- Connect to an installed MetaTrader 5 terminal
-- Read OHLCV/tick data
+- Connect to MetaTrader 5
+- Read OHLCV data
 - Calculate EMA, RSI and ATR
-- Generate a transparent BUY/SELL/WAIT signal
-- Calculate risk-based position sizing
-- Log signals locally
-- **No live order execution in this first version**
+- Generate transparent BUY/SELL/WAIT signals
+- Run a bar-based historical backtest
+- Report win rate, profit factor, total R and maximum drawdown
+- Download historical candles from MT5
+- Calculate generic risk-based position sizing
+- **No live order execution**
 
-## Safety
+## Run
 
-This project does not guarantee profits. It is intentionally built in paper/research mode first. Live execution should only be added after backtesting, out-of-sample testing and demo-forward testing.
-
-## Setup
-
-1. Install MetaTrader 5 and log into a demo account.
-2. Install Python 3.11+.
-3. From this directory:
+Install:
 
 ```bash
 python -m venv .venv
@@ -28,25 +24,30 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-4. Run:
+Download data from a connected MT5 terminal:
 
 ```bash
-python -m src.main
+python -m src.download --symbol EURUSD --timeframe M5 --candles 10000
 ```
 
-The app reads the selected symbol and prints the latest market snapshot and signal.
+Run the research backtest:
 
-## Configuration
+```bash
+python -m src.run_backtest --file data/EURUSD_M5.csv
+```
 
-Copy `.env.example` to `.env` and adjust values. Do not commit credentials.
+Try another risk/reward assumption:
 
-## Roadmap
+```bash
+python -m src.run_backtest --file data/EURUSD_M5.csv --reward-risk 2.5
+```
 
-1. Market-data adapter
-2. Strategy engine
-3. Backtesting engine
-4. Risk manager
-5. Demo execution adapter
-6. Dashboard
-7. Walk-forward/ML research
-8. Optional live execution behind explicit safety gates
+## Important research limitations
+
+This backtester is intentionally conservative and simple. It does not model spread, commissions, swaps, slippage or intra-bar tick ordering. If a candle touches both SL and TP, it assumes SL first. Results are therefore **research estimates, not expected live returns**.
+
+Do not optimize parameters on the same data used to judge performance. The next development stage should add train/validation/test splits, walk-forward evaluation, transaction-cost modeling and demo forward testing.
+
+## Safety
+
+No broker order is sent by this repository version. Live execution remains disabled until the research and demo-testing gates are satisfied.
