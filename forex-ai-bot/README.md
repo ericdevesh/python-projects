@@ -12,6 +12,8 @@ A local, risk-controlled forex research and paper-trading foundation built with 
 - Report win rate, profit factor, total R and maximum drawdown
 - Download historical candles from MT5
 - Calculate generic risk-based position sizing
+- Configurable research cost assumptions for spread, slippage and commission
+- Regression tests are included
 - **No live order execution**
 
 ## Run
@@ -36,18 +38,25 @@ Run the research backtest:
 python -m src.run_backtest --file data/EURUSD_M5.csv
 ```
 
-Try another risk/reward assumption:
+## Research gates
 
-```bash
-python -m src.run_backtest --file data/EURUSD_M5.csv --reward-risk 2.5
-```
+The project is being developed in this order:
 
-## Important research limitations
+1. Historical backtest
+2. Transaction-cost assumptions
+3. Chronological train/validation/test evaluation
+4. Rolling out-of-sample evaluation
+5. Demo/paper forward testing
+6. Only after evidence supports it, consider a separately gated live-execution module
 
-This backtester is intentionally conservative and simple. It does not model spread, commissions, swaps, slippage or intra-bar tick ordering. If a candle touches both SL and TP, it assumes SL first. Results are therefore **research estimates, not expected live returns**.
+Do not optimize parameters on the same data used to judge performance.
 
-Do not optimize parameters on the same data used to judge performance. The next development stage should add train/validation/test splits, walk-forward evaluation, transaction-cost modeling and demo forward testing.
+## Important limitations
+
+The current bar-based backtester does not yet fully apply the configurable cost model to every simulated fill, and it does not model swaps or intra-bar tick ordering. If a candle touches both SL and TP, it assumes SL first. Results are **research estimates, not expected live returns**.
+
+MetaTrader 5's Python integration provides historical bar/tick access through its terminal connection; available history also depends on the terminal's chart-history settings.
 
 ## Safety
 
-No broker order is sent by this repository version. Live execution remains disabled until the research and demo-testing gates are satisfied.
+No broker order is sent by this repository version. Live execution remains disabled until research and demo-testing gates are satisfied.
